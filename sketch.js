@@ -6,67 +6,65 @@ const sel = document.querySelector('select')
 isOne = currentValue => currentValue==1
 var canvas = document.getElementById("canvas")
 var ctx = canvas.getContext("2d")
-var doLabels = true
+var doLabels_ = true
 ctx.strokeStyle = 'white'
 ctx.fillStyle = 'black'
 ctx.fillRect(0,0,canvas.width,canvas.height)
 ctx.fillStyle = 'white'
 ctx.textBaseline = 'top';
 var thing = 'wY'
-stickDiagram(toArray(inp1.value),toArray(inp2.value),0,canvas.width,canvas.height)
-function toArray(str_) {
-	while(isNaN(str_.charAt(str_.length-1)*1)) {
-		str_ = str_.slice(0,-1)
+stickDiagram(toNot(inp1.value),toNot(inp2.value),0,canvas.width,canvas.height,doLabels_)
+function toNot(str_) {
+	if(thing=='Y'||thing=='wY') {
+		str_ = str_.replaceAll('(','[')
+		str_ = str_.replaceAll(')',']')
+		str_ = str_.replaceAll('][','],[')
+		if(!str_.startsWith('[')) {
+			str_ = '['+str_
+		}
+		if(!str_.endsWith(']')) {
+			str_ += ']'
+		}
+		var n1 = str_.match(/\[/g).length
+		var n2 = str_.match(/\]/g).length
+		if(n1>n2) {
+			str_ = str_.padEnd(str_.length+n1-n2,']')
+		}else if(n1<n2) {
+			str_ = str_.padStart(str_.length+n2-n1,'[')
+		}
+		return JSON.parse(str_)
 	}
-	while(isNaN(str_.charAt(0)*1)) {
-		str_ = str_.substring(1)
-	}
-	return JSON.parse('['+str_+']')
 }
-function stickDiagram(array_2_0,array,x1,x2,h) {
+function stickDiagram(array_2_0,array,x1,x2,h,doLabels) {
 	var diff = x2-x1
 	ctx.fillRect(x1,canvas.height/2-h/2,1,h)
 	if(Math.abs(diff)<1/2||array.length==0) {
 		return 0
 	}
-	if(doLabels&&ctx.measureText(f(array)).width<diff) {
+	if(doLabels&&ctx.measureText(f(array_2_0)).width<diff) {
 		ctx.fillText(f(array_2_0),x1,canvas.height/2-h/2)
 	}
-	if(array.length<2||(array_2_0.length>0&&array[array.length-1]==1)) {
-		return 0
+	var arrN = F(array_2_0,array)
+	if(arrN!=0) {
+		stickDiagram(array_2_0,arrN,x1,(x1+x2)/2,h,false)
+		stickDiagram(arrN,array,(x1+x2)/2,x2,h/2,doLabels_)
 	}
-	var arr2 = []
-	var array2 = JSON.parse(JSON.stringify(array))
-	var j_ = 0
-	while(array2[array2.length-1]==1) {
-		array2.pop()
-	}
-	//a[k],a[k+1][b]
-	var bob = 0
-	for(var i = 0; i<=Math.log2(diff)+bob+1; i++) {
-		if(array[array.length-1]!=1) {
-			arr2_=expand(array,i)
-			if(compare(array_2_0,arr2_)) {
-				bob = i+1
-			}
-			arr2[i] = arr2_
-		}else {
-			if(i>j_) {
-				break
-			}
-			arr2[i] = JSON.parse(JSON.stringify(array2))
-			array2.push(1)
+}
+function F(a,b) {
+	if(thing=='Y'||thing=='wY') {
+		var bobby = expand(b,0)
+		if(b[b.length-1]==1&&bobby+''==a+'') {
+			return 0
 		}
-	}
-	for(var j = 0; j<bob; j++) {
-		arr2.shift()
-	}
-	for(var i2 = 0; i2<arr2.length; i2++) {
-		if(i2==0) {
-			stickDiagram(array_2_0,arr2[i2],x2-diff/(2**i2),x2-diff/(2**i2)/2,h/(2**i2))
-		}else {
-			stickDiagram(arr2[i2-1],arr2[i2],x2-diff/(2**i2),x2-diff/(2**i2)/2,h/(2**i2))
+		var i = 1
+		while(compare(a,bobby)) {
+			bobby = expand(b,i)
+			if(bobby[bobby.length-1]==1) {
+				bobby.pop()
+			}
+			i++
 		}
+		return bobby
 	}
 }
 function expand(arr,n) {
@@ -100,7 +98,7 @@ function stik_(a) {
 	ctx.fillStyle = 'black'
 	ctx.fillRect(0,0,canvas.width,canvas.height)
 	ctx.fillStyle = 'white'
-	stickDiagram(toArray(inp1.value),toArray(inp2.value),0,canvas.width,canvas.height)
+	stickDiagram(toNot(inp1.value),toNot(inp2.value),0,canvas.width,canvas.height,doLabels_)
 }
 function getBadRoot_(array) {
 	for(var l_ = array.length-1; l_>=0; l_--) {

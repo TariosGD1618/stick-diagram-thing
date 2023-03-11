@@ -1,5 +1,7 @@
 //stick diagramming algorithm TariosGD1618, algorithm for sequence expansion by Naruyoko
-const inp = document.querySelector('input')
+const inp = document.querySelectorAll('input')
+const inp1 = inp[0]
+const inp2 = inp[1]
 const sel = document.querySelector('select')
 isOne = currentValue => currentValue==1
 var canvas = document.getElementById("canvas")
@@ -11,7 +13,7 @@ ctx.fillRect(0,0,canvas.width,canvas.height)
 ctx.fillStyle = 'white'
 ctx.textBaseline = 'top';
 var thing = 'wY'
-stickDiagram([],toArray(inp.value),0,canvas.width,canvas.height)
+stickDiagram(toArray(inp1.value),toArray(inp2.value),0,canvas.width,canvas.height)
 function toArray(str_) {
 	while(isNaN(str_.charAt(str_.length-1)*1)) {
 		str_ = str_.slice(0,-1)
@@ -44,10 +46,7 @@ function stickDiagram(array_2_0,array,x1,x2,h) {
 	for(var i = 0; i<=Math.log2(diff)+bob+1; i++) {
 		if(array[array.length-1]!=1) {
 			arr2_=expand(array,i)
-			if(arr2_[arr2_.length-1]==1&&array.length-array_2_0.length>2) {
-				arr2_.pop()
-			}
-			if(arr2_+''==array_2_0+''||arr2_.length==1&&array+''!='1,2') {
+			if(compare(array_2_0,arr2_)) {
 				bob = i+1
 			}
 			arr2[i] = arr2_
@@ -92,23 +91,17 @@ function f(x) {
 function conc(a,b) {
 	a = JSON.parse(JSON.stringify(a))
 	b = JSON.parse(JSON.stringify(b))
-	for(var i of b) {
-		a.push(i)
-	}
-	return a
+	return a.concat(b)
 }
-inp.addEventListener('change', (event) => {
+inp1.addEventListener('change', stik_)
+inp2.addEventListener('change', stik_)
+sel.addEventListener('change', stik_)
+function stik_(a) {
 	ctx.fillStyle = 'black'
 	ctx.fillRect(0,0,canvas.width,canvas.height)
 	ctx.fillStyle = 'white'
-	stickDiagram([],toArray(inp.value),0,canvas.width,canvas.height)
-})
-sel.addEventListener('change', (event) => {
-	ctx.fillStyle = 'black'
-	ctx.fillRect(0,0,canvas.width,canvas.height)
-	ctx.fillStyle = 'white'
-	stickDiagram([],toArray(inp.value),0,canvas.width,canvas.height)
-})
+	stickDiagram(toArray(inp1.value),toArray(inp2.value),0,canvas.width,canvas.height)
+}
 function getBadRoot_(array) {
 	for(var l_ = array.length-1; l_>=0; l_--) {
 		if((array[l_]<array[array.length-1]&&array[l_]>0)||(array[l_]>array[array.length-1]&&array[l_]<=0&&array[array.length-1]<=0)||(array[l_]>=0&&array[array.length-1]<=0)) {
@@ -125,5 +118,17 @@ function ex_() {
 		case 'wY':
 		return wY.apply(null,arguments)
 		break
+	}
+}
+function compare(n1,n2) {
+	for(var i = 0; i<Math.min(n1.length,n2.length); i++) {
+		if(n1[i]>n2[i]) {
+			return true
+		}if(n1[i]<n2[i]) {
+			return false
+		}
+	}
+	if(i==Math.min(n1.length,n2.length)) {
+		return n1.length>=n2.length
 	}
 }

@@ -56,7 +56,7 @@ function F(a,b) {
 		if(b[b.length-1]==1&&bobby+''==a+'') {
 			return 0
 		}
-		var i = 1
+		var i = 0
 		while(compare(a,bobby)) {
 			bobby = expand(b,i)
 			if(bobby[bobby.length-1]==1) {

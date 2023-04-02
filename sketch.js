@@ -1,4 +1,4 @@
-//stick diagramming algorithm by TariosGD1618, algorithm for Y and w-Y sequence expansion by Naruyoko, algorithm for TON expansion by solarzone
+//stick diagramming and BMS expansion algorithm by TariosGD1618, algorithm for Y and w-Y sequence expansion by Naruyoko, algorithm for TON expansion by solarzone
 const inp = document.querySelectorAll('input')
 const inp1 = inp[0]
 const inp2 = inp[1]
@@ -19,7 +19,7 @@ function toNot(str_) {
 		return 'lim'
 	}
 	try {
-		if(thing=='Y'||thing=='wY') {
+		if(thing=='Y'||thing=='wY'||thing=='BMS') {
 			str_ = str_.replaceAll('(','[')
 			str_ = str_.replaceAll(')',']')
 			str_ = str_.replaceAll('][','],[')
@@ -29,6 +29,12 @@ function toNot(str_) {
 			if(!str_.endsWith(']')) {
 				str_ += ']'
 			}
+			if(thing=='BMS'&&!str_.endsWith(']]')) {
+				str_ += ']'
+			}
+			if(thing=='BMS'&&!str_.startsWith('[[')) {
+				str_ = '[' + str_
+			}
 			var n1 = str_.match(/\[/g).length
 			var n2 = str_.match(/\]/g).length
 			if(n1>n2) {
@@ -37,7 +43,7 @@ function toNot(str_) {
 				str_ = str_.padStart(str_.length+n2-n1,'[')
 			}
 			var sOut_ = JSON.parse(str_)
-			if(sOut_.includes('0')) {
+			if((!thing=='BMS')&&sOut_.includes('0')) {
 				return 'lim'
 			}
 			return sOut_
@@ -48,7 +54,6 @@ function toNot(str_) {
 			}
 			if(str_.match(/[0WC_]/g).length==str_.length) {
 				return str_
-				console.log('bla')
 			}else {
 				return 'lim'
 			}
@@ -72,12 +77,6 @@ function stickDiagram(a,b,x1,x2,h,doLabels) {
 			stickDiagram(arrN[i-1],arrN[i],x2-diff/(2**i),x2-diff/(2**(i+1)),h/(2**i),doLabels_)
 		}
 	}
-	/*
-	if(arrN&&arrN+''!=b+'') {
-		stickDiagram(a,arrN,x1,(x1+x2)/2,h,false)
-		stickDiagram(arrN,b,(x1+x2)/2,x2,h/2,doLabels_)
-	}
-	*/
 }
 function F(a,b,l) {
 	var arr_ = []
@@ -103,7 +102,10 @@ function F(a,b,l) {
 					break
 				}
 			}
-			
+			while(b2.length<=b.length) {
+				arr_.push(JSON.parse(JSON.stringify(b2)))
+				b2.push(1)
+			}
 			return arr_
 		}
 		for(var i = 0; arr_.length<l;i++) {
@@ -130,7 +132,34 @@ function F(a,b,l) {
 			i++
 		} while(compare(a,bobby))
 		return bobby
-	}else {
+	}else if(thing=='BMS') {
+		if(b[b.length-1].length==0) {
+			var b2 = JSON.parse(JSON.stringify(b))
+			while(b2[b2.length-1].length==0) {
+				b2.pop()
+				if(b2+''==a+'') {
+					b2.push([])
+					break
+				}
+			}
+			while(b2.length<=b.length) {
+				arr_.push(JSON.parse(JSON.stringify(b2)))
+				b2.push([])
+			}
+			return arr_
+		}
+		for(var i = 0; arr_.length<l;i++) {
+			var bobby = expand(b,i)
+			if(bobby.length>0&&bobby[bobby.length-1].length==0) {
+				bobby.pop()
+			}
+			if(compare(a,bobby)) {
+				continue
+			}
+			arr_.push(bobby)
+		}
+		return arr_
+	}else if(thing=='TONM') {
 		if(b==a+'0C'||b==a||b+'0C'==a) {
 			return [a]
 		}
@@ -200,6 +229,8 @@ function f(x) {
 			return f(x)
 		}
 		return x+''
+	}else if(thing=='BMS') {
+		return JSON.stringify(x).replaceAll(']]',')').replaceAll('[[','(').replaceAll('],[',')(').replaceAll('[','(').replaceAll(']',')')
 	}
 	return x
 }
@@ -234,22 +265,34 @@ function ex_() {
 		case 'wY':
 		return wY.apply(null,arguments)
 		break
+		case 'BMS':
+		return BMS.apply(null,arguments)
+		break
 	}
 }
 function compare(n1,n2) {
+	if(n1=='lim') {
+		return true
+	}
+	if(n2=='lim') {
+		return false
+	}
 	if(thing=='Y'||thing=='wY') {
-		for(var i = 0; i<Math.min(n1.length,n2.length); i++) {
-			if(n1[i]>n2[i]) {
-				return true
-			}if(n1[i]<n2[i]) {
-				return false
-			}
-		}
-		if(i==Math.min(n1.length,n2.length)) {
-			return n1.length>=n2.length
-		}
+		return lex(n1,n2,((a,b)=>(a-b)))>=0
+	}else if(thing=='BMS') {
+		return lex(n1,n2,((a,b)=>lex(a,b,((c,d)=>(c-d)))))>=0
 	}else {
 		var n = Math.max(deg(n1),deg(n2))
 		return a_(n1,n)>=a_(n2,n)
+	}
+}
+function lex(a,b,f__) {
+	for(var i = 0; i<Math.min(a.length,b.length); i++) {
+		if(f__(a[i],b[i])!=0) {
+			return f__(a[i],b[i])
+		}
+	}
+	if(i==Math.min(a.length,b.length)) {
+		return a.length-b.length
 	}
 }

@@ -1,4 +1,4 @@
-//stick diagramming algorithm TariosGD1618, algorithm for sequence expansion by Naruyoko
+//stick diagramming algorithm by TariosGD1618, algorithm for Y and w-Y sequence expansion by Naruyoko, algorithm for TON expansion by solarzone
 const inp = document.querySelectorAll('input')
 const inp1 = inp[0]
 const inp2 = inp[1]
@@ -15,76 +15,193 @@ ctx.textBaseline = 'top';
 var thing = 'wY'
 stickDiagram(toNot(inp1.value),toNot(inp2.value),0,canvas.width,canvas.height,doLabels_)
 function toNot(str_) {
-	if(thing=='Y'||thing=='wY') {
-		str_ = str_.replaceAll('(','[')
-		str_ = str_.replaceAll(')',']')
-		str_ = str_.replaceAll('][','],[')
-		if(!str_.startsWith('[')) {
-			str_ = '['+str_
-		}
-		if(!str_.endsWith(']')) {
-			str_ += ']'
-		}
-		var n1 = str_.match(/\[/g).length
-		var n2 = str_.match(/\]/g).length
-		if(n1>n2) {
-			str_ = str_.padEnd(str_.length+n1-n2,']')
-		}else if(n1<n2) {
-			str_ = str_.padStart(str_.length+n2-n1,'[')
-		}
-		return JSON.parse(str_)
+	if(str_.toLowerCase()=='lim') {
+		return 'lim'
 	}
+	try {
+		if(thing=='Y'||thing=='wY') {
+			str_ = str_.replaceAll('(','[')
+			str_ = str_.replaceAll(')',']')
+			str_ = str_.replaceAll('][','],[')
+			if(!str_.startsWith('[')) {
+				str_ = '['+str_
+			}
+			if(!str_.endsWith(']')) {
+				str_ += ']'
+			}
+			var n1 = str_.match(/\[/g).length
+			var n2 = str_.match(/\]/g).length
+			if(n1>n2) {
+				str_ = str_.padEnd(str_.length+n1-n2,']')
+			}else if(n1<n2) {
+				str_ = str_.padStart(str_.length+n2-n1,'[')
+			}
+			var sOut_ = JSON.parse(str_)
+			if(sOut_.includes('0')) {
+				return 'lim'
+			}
+			return sOut_
+		}else {
+			str_ = str_.toUpperCase()
+			if(str_.length==0) {
+				return '0'
+			}
+			if(str_.match(/[0WC_]/g).length==str_.length) {
+				return str_
+				console.log('bla')
+			}else {
+				return 'lim'
+			}
+		}
+	}catch {return 'lim'}
 }
-function stickDiagram(array_2_0,array,x1,x2,h,doLabels) {
+function stickDiagram(a,b,x1,x2,h,doLabels) {
 	var diff = x2-x1
 	ctx.fillRect(x1,canvas.height/2-h/2,1,h)
-	if(Math.abs(diff)<1/2||array.length==0) {
+	if(Math.abs(diff)<1/2||b.length==0) {
 		return 0
 	}
-	if(doLabels&&ctx.measureText(f(array_2_0)).width<diff) {
-		ctx.fillText(f(array_2_0),x1,canvas.height/2-h/2)
+	if(doLabels&&ctx.measureText(f(a)).width<diff) {
+		ctx.fillText(f(a),x1,canvas.height/2-h/2)
 	}
-	var arrN = F(array_2_0,array)
-	if(arrN!=0) {
-		stickDiagram(array_2_0,arrN,x1,(x1+x2)/2,h,false)
-		stickDiagram(arrN,array,(x1+x2)/2,x2,h/2,doLabels_)
+	var arrN = F(a,b,Math.log2(diff)+1)
+	for(var i = 0; i<arrN.length; i++) {
+		if(i==0) {
+			stickDiagram(a,arrN[0],x1,(x1+x2)/2,h,false)
+		}else {
+			stickDiagram(arrN[i-1],arrN[i],x2-diff/(2**i),x2-diff/(2**(i+1)),h/(2**i),doLabels_)
+		}
 	}
+	/*
+	if(arrN&&arrN+''!=b+'') {
+		stickDiagram(a,arrN,x1,(x1+x2)/2,h,false)
+		stickDiagram(arrN,b,(x1+x2)/2,x2,h/2,doLabels_)
+	}
+	*/
 }
-function F(a,b) {
+function F(a,b,l) {
+	var arr_ = []
 	if(thing=='Y'||thing=='wY') {
+		if(b=='lim') {
+			var a__
+			if(a[1]!=undefined) {
+				a__=1+a[1]
+			}else {
+				a__=2
+			}
+			while(arr_.length<l) {
+				arr_.push([1,a__])
+				a__++
+			}
+		}
+		if(b[b.length-1]==1) {
+			var b2 = JSON.parse(JSON.stringify(b))
+			while(b2[b2.length-1]==1) {
+				b2.pop()
+				if(b2+''==a+'') {
+					b2.push(1)
+					break
+				}
+			}
+			
+			return arr_
+		}
+		for(var i = 0; arr_.length<l;i++) {
+			var bobby = expand(b,i)
+			if(bobby[bobby.length-1]==1) {
+				bobby.pop()
+			}
+			if(compare(a,bobby)) {
+				continue
+			}
+			arr_.push(bobby)
+		}
+		return arr_
 		var bobby = expand(b,0)
 		if(b[b.length-1]==1&&bobby+''==a+'') {
-			return 0
+			return []
 		}
 		var i = 0
-		while(compare(a,bobby)) {
+		do {
 			bobby = expand(b,i)
 			if(bobby[bobby.length-1]==1) {
 				bobby.pop()
 			}
 			i++
-		}
+		} while(compare(a,bobby))
 		return bobby
+	}else {
+		if(b==a+'0C'||b==a||b+'0C'==a) {
+			return [a]
+		}
+		if(a=='') {
+			a = '0'
+		}
+		if(b.endsWith('0C')) {
+			var b2 = b
+			while(b2.endsWith('0C')&&b2!=a) {
+				b2 = b2.slice(0,-2)
+			}
+			while(b2.length<=b.length) {
+				arr_.push(b2)
+				b2+='0C'
+			}
+			return arr_
+		}
+		if(b=='lim') {
+			var s
+			if(a=='0'||a=='') {
+				s = 'W'
+			}else {
+				var n = deg(a)
+				s = 'W'.padEnd(n+2,'_')
+			}
+			for(var i = 0; i<l; i++) {
+				arr_.push(s)
+				s+='_'
+			}
+			return arr_
+		}else {
+			var n = Math.max(deg(a),deg(b))
+			var a2 = a_(a,n)
+			var b2 = a_(b,n)
+			for(var i = 0; arr_.length<l; i++) {
+				var bobby = expand_(b2,n,i)
+				if(!b.endsWith('00CC')) {
+					if(bobby=='OOC') {
+						continue
+					}
+					if(bobby.endsWith('OC')) {
+						//continue
+					}
+				}
+				if(bobby>a2) {
+					var bob2 = rA_0(bobby,n)
+					if((bob2!=arr_[arr_.length-1])&&(b.endsWith('00CC')||(bob2!=arr_[arr_.length-1]+'0C'))) {
+						arr_.push(rA_0(bobby,n))
+					}
+				}
+			}
+			//w==000CC
+			return arr_
+		}
 	}
 }
 function expand(arr,n) {
-	var a__ = arr.findLastIndex((element)=>element==0)
-	if(arr[arr.length-1]==0) {
-		arr = JSON.parse(JSON.stringify(arr))
-		arr[a__] = n+2
-		return arr
-	}
 	return ex_(arr,n,true)
 }
 function f(x) {
-	if(x.length==0) {
-		return 0
+	if(thing=='Y'||thing=='wY') {
+		if(x.length==0) {
+			return 0
+		}
+		if(!x.every(isOne)&&x[0]==1&&x[1]==1) {
+			x.shift()
+			return f(x)
+		}
+		return x+''
 	}
-	if(!x.every(isOne)&&x[0]==1&&x[1]==1) {
-		x.shift()
-		return f(x)
-	}
-	return x+''
+	return x
 }
 function conc(a,b) {
 	a = JSON.parse(JSON.stringify(a))
@@ -95,6 +212,7 @@ inp1.addEventListener('change', stik_)
 inp2.addEventListener('change', stik_)
 sel.addEventListener('change', stik_)
 function stik_(a) {
+	thing=sel.value
 	ctx.fillStyle = 'black'
 	ctx.fillRect(0,0,canvas.width,canvas.height)
 	ctx.fillStyle = 'white'
@@ -119,14 +237,19 @@ function ex_() {
 	}
 }
 function compare(n1,n2) {
-	for(var i = 0; i<Math.min(n1.length,n2.length); i++) {
-		if(n1[i]>n2[i]) {
-			return true
-		}if(n1[i]<n2[i]) {
-			return false
+	if(thing=='Y'||thing=='wY') {
+		for(var i = 0; i<Math.min(n1.length,n2.length); i++) {
+			if(n1[i]>n2[i]) {
+				return true
+			}if(n1[i]<n2[i]) {
+				return false
+			}
 		}
-	}
-	if(i==Math.min(n1.length,n2.length)) {
-		return n1.length>=n2.length
+		if(i==Math.min(n1.length,n2.length)) {
+			return n1.length>=n2.length
+		}
+	}else {
+		var n = Math.max(deg(n1),deg(n2))
+		return a_(n1,n)>=a_(n2,n)
 	}
 }

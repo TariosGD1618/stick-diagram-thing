@@ -3,8 +3,8 @@ var lineBreakRegex=/\r?\n/g;
 var itemSeparatorRegex=/[\t ,]/g;
 var calculatedMountains=null;
 function parseSequenceElement(s,i){
-  if (s.indexOf("v")==-1||!isFinite(Number(s.substring(s.indexOf("v")+1)))){
-    var numval=Number(s);
+  if (s.indexOf("v")==-1){
+    var numval=BigInt(s);
     return {
       value:numval,
       position:i,
@@ -12,7 +12,7 @@ function parseSequenceElement(s,i){
     };
   }else{
     return {
-      value:Number(s.substring(0,s.indexOf("v"))),
+      value:BigInt(s.substring(0,s.indexOf("v"))),
       position:i,
       parentIndex:Math.max(Math.min(i-1,Number(s.substring(s.indexOf("v")+1))),-1),
       forcedParent:true
@@ -372,7 +372,7 @@ function expand(s,n,stringify){
       continue;
     }
     for (var j=0;j<result[i].length;j++){
-      if (!isNaN(result[i][j].value)) continue;
+      if (!isNaN(Number(result[i][j].value))) continue;
       var k=0; //find left-up
       while (result[i+1][k].position<result[i][j].position-1) k++;
       if (result[i+1][k].position!=result[i][j].position-1) throw Error("Mountain not complete");
@@ -390,12 +390,18 @@ function expand(s,n,stringify){
     rr=result;
   }
   return rr;
+}/*
+if(z[z.length-1]>=3) {
+	k_++
+}*/
+if(z=='lim') {
+	return [1n,BigInt(k_)+2n]
 }
 var arrrrr = expand(z+'',k_,false)
 var a2 = []
 	if(arrrrr.length>0) {
 		for(var i = 0; i<arrrrr[0].length; i++) {
-			a2.push(arrrrr[0][i].value)
+			a2.push(BigInt(arrrrr[0][i].value))
 		}
 	}
 	return a2

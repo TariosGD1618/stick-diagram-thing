@@ -54,3 +54,16 @@ function fix(a){let b=0;for(i=0;i<a.length;i++)if(b+=(-1)**(a[i]=='C'),b==0)retu
 function sh(a,d){let x=0n,t=3n,r='';for(i of a)x=x*t+BigInt('COZ'.indexOf(i));for(x+=d;x;)r='COZ'[x%t]+r,x/=t;return r}
 function std(a,n){if(a.length<2)return!0;let b=Cargs(a)[1],c=Cargs(a)[0];return!(!std(b,n)||!std(c,n)||b.length>1&&Cargs(b)[0]<c)&&builtBelow(c,a,n)}
 function expand_(a,s,n) {let u=fix(a),l=a.length-1,q=0,m=-1n,i=0;while(u[l]=='C')l--;for(i=l+1;i<l+n+2;i++)for(q=sh(u.slice(0,i)+'C'.repeat(Math.max(i-u.length,0)),m);!std(fix(q),s);)u=fix(q),q=sh(q,m);return fix(q)}
+function TONM(s,n) {
+	if(s=='W') {
+		n+=2
+	}
+	if(s=='lim') {
+		return 'W'.padEnd(n+2,'_')
+	}else {
+		var N = deg(s)
+		var s2 = a_(s,N)
+		var bobby = expand_(s2,N,n)
+		return rA_0(bobby,N)
+	}
+}

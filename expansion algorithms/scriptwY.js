@@ -3,8 +3,8 @@ var lineBreakRegex=/\r?\n/g;
 var itemSeparatorRegex=/[\t ,]/g;
 function parseSequenceElement(s,i){
   var strremoved=s;
-  if (strremoved.indexOf("v")==-1||!isFinite(Number(strremoved.substring(strremoved.indexOf("v")+1)))){
-    var numval=Number(strremoved);
+  if (strremoved.indexOf("v")==-1){
+    var numval=BigInt(strremoved);
     return {
       value:numval,
       position:i,
@@ -12,7 +12,7 @@ function parseSequenceElement(s,i){
     };
   }else{
     return {
-      value:Number(strremoved.substring(0,strremoved.indexOf("v"))),
+      value:BigInt(strremoved.substring(0,strremoved.indexOf("v"))),
       position:i,
       parentIndex:Math.max(Math.min(i-1,Number(strremoved.substring(strremoved.indexOf("v")+1))),-1),
       forcedParent:true
@@ -714,7 +714,7 @@ function expand(s,n,stringify){
     var node=findHighestWithPosition(result,x);
     var aboveNode=null;
     while (node){
-      if (isNaN(node.value)){
+      if (isNaN(Number(node.value))){
         //debugout+=JSON.stringify(node.coord)+","+JSON.stringify(aboveNode&&aboveNode.coord)+"<br>";
         if (aboveNode){
           var pseudoParentNode=leftLeg(result,aboveNode);
@@ -735,7 +735,7 @@ function expand(s,n,stringify){
           }
           node.value=pseudoParentNode.value+aboveNode.value;
         }else{
-          node.value=1;
+          node.value=1n;
         }
       }
       aboveNode=node;
@@ -771,5 +771,15 @@ function expandmulti(s,nstring){
   for (var i of nstring.split(",")) result=expand(result,+i);
   return result;
 }
-return JSON.parse('['+expand(z+'',k_)+']')
+if(z=='lim') {
+	return [1n,BigInt(k_)+2n]
+}/*
+if(z[z.length-1]>=3) {
+	k_++
+}*/
+var aOut = expand(z+'',k_).split(',')
+for(var i =0; i<aOut.length; i++) {
+	aOut[i] = BigInt(aOut[i])
+}
+return aOut
 }

@@ -1,12 +1,12 @@
 function BMS(arr,n) {
 	if(arr=='lim') {
 		var outArr = [[],[]]
-		for(var i = 0; i<n; i++) {
-			outArr[1].push(1)
+		for(var i = 0; i<=n; i++) {
+			outArr[1].push(1n)
 		}
 		return outArr
 	}
-	var arr2 = JSON.parse(JSON.stringify(arr.slice(0,-1)))
+	var arr2 = arrArrCopy(arr.slice(0,-1))
 	if(n==1) {
 		return arr2
 	}
@@ -40,16 +40,15 @@ function BMS(arr,n) {
 	}
 	function nAt(A,B) {
 		try {
-			return arr[A].length>B?arr[A][B]:0
+			return arr[A].length>B?arr[A][B]:0n
 		}catch {
-			return 0
+			return 0n
 		}
 	}
 	var t = arr[arr.length-1].length-1
-	console.log(t)
 	var badRoot = p(arr.length-1,arr[arr.length-1].length-1)
-	var goodPart = JSON.parse(JSON.stringify(arr.slice(0,badRoot)))
-	var badPart = JSON.parse(JSON.stringify(arr.slice(badRoot,-1)))
+	var goodPart = arrArrCopy(arr.slice(0,badRoot))
+	var badPart = arrArrCopy(arr.slice(badRoot,-1))
 	arr2 = goodPart
 	if(n==0) {
 		return goodPart
@@ -58,7 +57,7 @@ function BMS(arr,n) {
 	for(var i = 0; i<badPart.length; i++) {
 		arr3.push([])
 		for(var j = 0; j<t; j++) {
-			arr3[i][j] = 0
+			arr3[i][j] = 0n
 			var a_ = arr[arr.length-1][j]-nAt(badRoot,j)
 			if(i==0) {
 				arr3[i][j] = a_
@@ -76,12 +75,12 @@ function BMS(arr,n) {
 	}
 	for(var i = 0; i<n; i++) {
 		for(var j = 0; j<badPart.length; j++) {
-			var arrIns = JSON.parse(JSON.stringify(badPart[j]))
+			var arrIns = arrCopy(badPart[j])
 			for(var k = 0; k<t; k++) {
 				if(k>=arrIns.length) {
-					arrIns.push(0)
+					arrIns.push(0n)
 				}
-				arrIns[k]+=i*arr3[j][k]
+				arrIns[k]+=BigInt(i)*arr3[j][k]
 			}
 			while(arrIns[arrIns.length-1]==0) {
 				arrIns.pop()

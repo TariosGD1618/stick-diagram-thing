@@ -412,17 +412,10 @@ function Y__(x) {
 		}
 		I++
 	}
-	var arra2 = []
-	for(var i = 1; i<arra_.length; i++) {
-		arra2.push(arra_[i]-5n)
-	}
 	var p1 = x.slice(0,I)
 	var p2 = x.slice(I)
 	if(p1.length<=2) {
 		p1 = []
-	}
-	if(arra2.toString()==p1.toString()) {
-		p1 = [1n]
 	}
 	var p22 = []
 	for(var i = 0; i<p2.length;) {
@@ -437,6 +430,16 @@ function Y__(x) {
 		}else {
 			i+=arra_.length
 		}
+	}
+	var arra2 = []
+	for(var i = 1; i<arra_.length; i++) {
+		arra2.push(arra_[i]-5n)
+	}
+	if(x.toString()=='1,2,4,6,8,4,6,7,9,11,13'||x.toString()=='1,2,4,6,8,6,8,4,6,8,6,7,9,11,13,11,13') {
+		console.log(p1,getLastCo(arra2))
+	}
+	if(getLastCo(arra2).toString()==p1.toString()) {
+		p1 = [1n]
 	}
 	var x2 = p1.concat(p22)
 	if(arra_.length==1) {
@@ -455,7 +458,7 @@ function Y__(x) {
 		}
 	}
 	return x.toString()
-}//1,2,4,6,8,4,6,7,9,11,13,1
+}//1,2,4,6,8,6,8,4,6,8,6,7,9,11,13,11,13,1
 function toPhi_(x) {
 	if(x.length<2||x[1]<2) {
 		x.unshift(1n,1n)
@@ -473,13 +476,15 @@ function toPhi_(x) {
 	var arr3 = []
 	for(var i = 0; i<arra.length; i++) {
 		var strt = arrCopy(arra[i])
-		if(strt.lastIndexOf(2n)!=-1) {
-			strt = strt.slice(0,strt.lastIndexOf(2n))
+		if(strt.indexOf(2n)!=-1) {
+			var sL = strt.indexOf(2n)
+			strt = strt.slice(0,sL)
 		}
 		while(i<arra.length-1) {
 			var strt2 = arra[i+1]
-			if(strt2.lastIndexOf(2n)!=-1) {
-				strt2 = strt2.slice(0,strt2.lastIndexOf(2n))
+			if(strt2.indexOf(2n)!=-1) {
+				var sL = strt2.indexOf(2n)
+				strt2 = strt2.slice(0,sL)
 			}
 			if(strt.toString()!=strt2.toString()) {
 				break
@@ -545,4 +550,60 @@ function toPhi_(x) {
 		}
 	}
 	return st
+}
+function getLastCo(x) {
+	if(x.length<2||x[1]<2) {
+		x.unshift(1n,1n)
+	}
+	if(x[0]==1&&(x.length<=1||x[1]<3)) {
+		return x
+	}
+	var arra = []
+	for(var i = 0; i<x.length; i++) {
+		if(x[i]==1||i==0) {
+			arra.push([])
+		}
+		arra[arra.length-1].push(x[i])
+	}
+	for(var i = 0; i<arra.length; i++) {
+		var strt = arrCopy(arra[i])
+		if(strt.indexOf(2n)!=-1) {
+			var sL = strt.indexOf(2n)
+			strt = strt.slice(0,sL)
+		}
+		while(i<arra.length-1) {
+			var strt2 = arra[i+1]
+			if(strt2.indexOf(2n)!=-1) {
+				var sL = strt2.indexOf(2n)
+				strt2 = strt2.slice(0,sL)
+			}
+			if(strt.toString()!=strt2.toString()) {
+				break
+			}
+			arra[i] = arra[i].concat(arra[i+1])
+			for(var j = i+1; j<arra.length-1; j++) {
+				arra[j] = arra[j+1]
+			}
+			arra.pop()
+		}
+		var a2 = []
+		for(var j = 0; j<arra[i].length;) {
+			a2.push(arra[i][j])
+			if(arra[i][j]==1) {
+				j++
+				while(arra[i][j]>2n&&j<arra[i].length) {
+					j++
+				}
+			}else {
+				j++
+			}
+		}
+		if(a2.length<=1||a2[1]==1) {
+			a2.unshift(1n)
+		}
+		if(i==arra.length-1) {
+			return a2
+		}
+	}
+	return a2
 }

@@ -412,10 +412,17 @@ function Y__(x) {
 		}
 		I++
 	}
+	var arra2 = []
+	for(var i = 1; i<arra_.length; i++) {
+		arra2.push(arra_[i]-5n)
+	}
 	var p1 = x.slice(0,I)
 	var p2 = x.slice(I)
 	if(p1.length<=2) {
 		p1 = []
+	}
+	if(arra2.toString()==p1.toString()) {
+		p1 = [1n]
 	}
 	var p22 = []
 	for(var i = 0; i<p2.length;) {
@@ -441,10 +448,6 @@ function Y__(x) {
 	}else if(arra_.length==3&&arra_[1]==6&&arra_[2]==8) {
 		return 'Γ'+A(Y__(x2))
 	}else if(arra_[1]==6) {
-		var arra2 = []
-		for(var i = 1; i<arra_.length; i++) {
-			arra2.push(arra_[i]-5n)
-		}
 		if(x2.length>1||arra_[2]<8||arra_[3]<9) {
 			return 'φ('+toPhi_(arra2)+','+Y__(x2)+')'
 		}else {
@@ -452,7 +455,7 @@ function Y__(x) {
 		}
 	}
 	return x.toString()
-}
+}//1,2,4,6,8,4,6,7,9,11,13,1
 function toPhi_(x) {
 	if(x.length<2||x[1]<2) {
 		x.unshift(1n,1n)

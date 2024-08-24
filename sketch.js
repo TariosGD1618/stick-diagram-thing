@@ -32,6 +32,9 @@ function toNot(str_) {
 			if(str_.length==0) {
 				return []
 			}
+			if(str=='0') {
+				return []
+			}
 			str_ = str_.replaceAll(/[^0123456789,]/g,'')
 			str_ = '['+str_+']'
 			var sOut_ = JSON.parse(str_)
@@ -63,6 +66,9 @@ function toNot(str_) {
 			for(var i = 0; i<sOut_.length; i++) {
 				for(var j = 0; j<sOut_[i].length; j++) {
 					sOut_[i][j] = BigInt(sOut_[i][j])
+				}
+				while(sOut_[i][sOut_[i].length-1]==0) {
+					sOut_[i].pop()
 				}
 			}
 			return sOut_
@@ -171,7 +177,9 @@ function stik_(a) {
 		}
 	}else {
 		MinOrd = toNot(inp1.value)
-		inp1.value = f(MinOrd)
+		if(inp1.value.length!=0) {
+			inp1.value = f(MinOrd)
+		}
 		MaxOrd = toNot(inp2.value)
 		inp2.value = f(MaxOrd)
 	}

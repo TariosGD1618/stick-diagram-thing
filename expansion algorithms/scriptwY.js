@@ -771,15 +771,23 @@ function expandmulti(s,nstring){
   for (var i of nstring.split(",")) result=expand(result,+i);
   return result;
 }
-if(z=='lim') {
-	return [1n,BigInt(k_)+2n]
-}/*
-if(z[z.length-1]>=3) {
-	k_++
-}*/
-var aOut = expand(z+'',k_).split(',')
-for(var i =0; i<aOut.length; i++) {
-	aOut[i] = BigInt(aOut[i])
-}
-return aOut
+	if(z[z.length-1]==1) {
+		return z.slice(z,z.length-1)
+	}
+	if(z=='lim') {
+		return [1n,BigInt(k_)+2n]
+	}/*
+	if(z[z.length-1]>=3) {
+		k_++
+	}*/
+	var aOut = expand(z+'',k_).split(',')
+	for(var i =0; i<aOut.length; i++) {
+		aOut[i] = BigInt(aOut[i])
+	}
+	if(z[z.length-1]!=1&&(z[z.length-1]!=2||z[z.length-2]!=1)) {
+		while(aOut[aOut.length-1]==1) {
+			aOut.pop()
+		}
+	}
+	return aOut
 }

@@ -394,14 +394,19 @@ function expand(s,n,stringify){
 if(z[z.length-1]>=3) {
 	k_++
 }*/
-if(z=='lim') {
-	return [1n,BigInt(k_)+2n]
-}
-var arrrrr = expand(z+'',k_,false)
-var a2 = []
+	if(z=='lim') {
+		return [1n,BigInt(k_)+2n]
+	}
+	var arrrrr = expand(z+'',k_,false)
+	var a2 = []
 	if(arrrrr.length>0) {
 		for(var i = 0; i<arrrrr[0].length; i++) {
 			a2.push(BigInt(arrrrr[0][i].value))
+		}
+	}
+	if(z[z.length-1]!=1&&z[z.length-1]!=2||z[z.length-2]!=1) {
+		while(a2[a2.length-1]==1) {
+			a2.pop()
 		}
 	}
 	return a2

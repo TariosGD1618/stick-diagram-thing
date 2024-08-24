@@ -170,6 +170,10 @@ function stik_(a) {
 		thing=sel.value
 		if(inp1.value.length!=0) {
 			inp1.value = f(MinOrd)
+			if(MinOrd=='lim') {
+				inp1.value = ''
+				MinOrd = toNot(inp1.value)
+			}
 		}
 		inp2.value = f(MaxOrd)
 		if(inp1.value.length==0) {

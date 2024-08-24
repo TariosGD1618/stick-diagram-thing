@@ -71,6 +71,12 @@ function toNot(str_) {
 			if(str_.length==0) {
 				return '0'
 			}
+			var N____ = deg(str_)
+			var s2____ = fix(a_(str_,N____).replaceAll(/[^OCZ]/g,''))
+			if(!std(s2____,N____)) {
+				return 'lim'
+			}
+			str_ = rA_0(s2____,N____)
 			return str_
 		}
 	}catch {return 'lim'}

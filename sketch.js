@@ -191,6 +191,11 @@ function stik_(a) {
 	ctx.fillStyle = 'black'
 	ctx.fillRect(0,0,canvas.width,canvas.height)
 	ctx.fillStyle = 'white'
+	if(compare(MinOrd,MaxOrd)) {
+		inp1.value = ''
+		inp2.value = 'lim'
+		stik_(a)
+	}
 	//try {
 		stickDiagram(MinOrd,MaxOrd,0,canvas.width,canvas.height,doLabels_)
 	//}catch {

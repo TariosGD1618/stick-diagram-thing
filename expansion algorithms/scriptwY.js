@@ -788,6 +788,8 @@ function expandmulti(s,nstring){
 		while(aOut[aOut.length-1]==1) {
 			aOut.pop()
 		}
+	}else if(aOut[aOut.length-1]==1&&z[z.length-1]!=1) {
+		aOut.pop()
 	}
 	return aOut
 }

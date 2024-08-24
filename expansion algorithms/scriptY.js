@@ -408,6 +408,8 @@ if(z[z.length-1]>=3) {
 		while(a2[a2.length-1]==1) {
 			a2.pop()
 		}
+	}else if(a2[a2.length-1]==1&&z[z.length-1]!=1) {
+		a2.pop()
 	}
 	return a2
 }

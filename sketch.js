@@ -43,12 +43,13 @@ function toNot(str_) {
 			for(var i = 0; i<sOut_.length; i++) {
 				sOut_[i] = BigInt(sOut_[i])
 			}
+			if(sOut_[0]!=(thing!='PrSS')) {
+				return 'lim'
+			}
 			return sOut_
 		}else if(thing=='BMS') {
 			str_ = str_.replaceAll(/[^0123456789,\(\)\[\]]/g,'')
-			str_ = str_.replaceAll('(','[').replaceAll(')',']')
-			str_ = str_.replaceAll(/\][^\[]*/g,']')
-			str_ = str_.replaceAll('][','],[')
+			str_ = '['+str_.replaceAll('(','[').replaceAll(')',']').replaceAll('][','],[')
 			if(!str_.startsWith('[')) {
 				str_ = '['+str_
 			}
@@ -61,6 +62,7 @@ function toNot(str_) {
 			if(!str_.startsWith('[[')) {
 				str_ = '[' + str_
 			}
+			console.log(str_)
 			var sOut_ = JSON.parse(str_)
 			for(var i = 0; i<sOut_.length; i++) {
 				for(var j = 0; j<sOut_[i].length; j++) {
@@ -69,6 +71,9 @@ function toNot(str_) {
 				while(sOut_[i][sOut_[i].length-1]==0) {
 					sOut_[i].pop()
 				}
+			}
+			if(sOut_[0].length!=0) {
+				return 'lim'
 			}
 			return sOut_
 		}else {
@@ -89,14 +94,14 @@ function toNot(str_) {
 function stickDiagram(a,b,x1,x2,h,doLabels) {
 	var diff = x2-x1
 	ctx.fillRect(Math.floor(x1),canvas.height/2-h/2,1,h)
-	if(Math.abs(diff)<1/2||b==undefined||b.length==0) {
-		return 0
-	}
 	if(doLabels&&ctx.measureText(f(a)).width<diff) {
 		ctx.fillText(f(a),x1,canvas.height/2-h/2)
 	}
+	if(Math.abs(diff)<1/2||b==undefined||b.length==0) {
+		return 0
+	}
 	var arrN = F(a,b,Math.log2(diff)+1)
-	for(var i = 0; i<arrN.length; i++) {
+	for(var i = 0; i<=arrN.length; i++) {
 		if(i==0) {
 			stickDiagram(a,arrN[0],x1,(x1+x2)/2,h,false)
 		}else {
@@ -198,13 +203,12 @@ function stik_(a) {
 		inp1.value = ''
 		MinOrd = toNot(inp1.value)
 	}
-	//try {
+	try {
 		stickDiagram(MinOrd,MaxOrd,0,canvas.width,canvas.height,doLabels_)
-	//}catch {
-	//	inp1.value = ''
-	//	inp2.value = 'lim'
-	//	stik_(a)
-	//}
+	}catch {
+		inp2.value = 'lim'
+		stik_(a)
+	}
 }
 function stik_2(a) {
 	canvas.width=Number(inp3.value)

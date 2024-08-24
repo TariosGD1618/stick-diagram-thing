@@ -156,6 +156,8 @@ function sub(a0,a1){
 		while(out_.length>0&&out_[out_.length-1].length==0) {
 			out_.pop()
 		}
+	}if(Arr.length>2&&Arr[Arr.length-1].length!=0&&out_[out_.length-1].length==0) {
+		out_.pop()
 	}
 	return out_
 }

@@ -19,7 +19,7 @@ ctx.fillStyle = 'black'
 ctx.fillRect(0,0,canvas.width,canvas.height)
 ctx.fillStyle = 'white'
 ctx.textBaseline = 'top';
-var thing = 'wY'
+var thing = 'Y'
 var MinOrd = toNot(inp1.value)
 var MaxOrd = toNot(inp2.value)
 stickDiagram(MinOrd,MaxOrd,0,canvas.width,canvas.height,doLabels_)
@@ -32,11 +32,10 @@ function toNot(str_) {
 			if(str_.length==0) {
 				return []
 			}
-			if(str=='0') {
+			if(str_=='0') {
 				return []
 			}
-			str_ = str_.replaceAll(/[^0123456789,]/g,'')
-			str_ = '['+str_+']'
+			str_ = '['+str_.replaceAll(/[^0123456789,]/g,'')+']'
 			var sOut_ = JSON.parse(str_)
 			if(sOut_.includes('0')&&thing!='PrSS') {
 				return 'lim'
@@ -197,8 +196,7 @@ function stik_(a) {
 	ctx.fillStyle = 'white'
 	if(compare(MinOrd,MaxOrd)) {
 		inp1.value = ''
-		inp2.value = 'lim'
-		stik_(a)
+		MinOrd = toNot(inp1.value)
 	}
 	//try {
 		stickDiagram(MinOrd,MaxOrd,0,canvas.width,canvas.height,doLabels_)

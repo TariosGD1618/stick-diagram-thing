@@ -28,54 +28,73 @@ function toNot(str_) {
 		return 'lim'
 	}
 	try {
-		if(thing=='Y'||thing=='wY'||thing=='PrSS') {
-			if(str_.length==0) {
-				return []
-			}
-			if(str_=='0') {
-				return []
-			}
-			str_ = '['+str_.replaceAll(/[^0123456789,]/g,'')+']'
-			var sOut_ = JSON.parse(str_)
-			if(sOut_.includes('0')&&thing!='PrSS') {
-				return 'lim'
-			}
-			for(var i = 0; i<sOut_.length; i++) {
-				sOut_[i] = BigInt(sOut_[i])
-			}
-			if(sOut_[0]!=(thing!='PrSS')) {
-				return 'lim'
-			}
-			return sOut_
-		}else if(thing=='BMS') {
-			str_ = str_.replaceAll(/[^0123456789,\(\)\[\]]/g,'')
-			str_ = '['+str_.replaceAll('(','[').replaceAll(')',']').replaceAll('][','],[')
-			if(!str_.startsWith('[')) {
-				str_ = '['+str_
-			}
-			if(!str_.endsWith(']')) {
-				str_ += ']'
-			}
-			if(!str_.endsWith(']]')) {
-				str_ += ']'
-			}
-			if(!str_.startsWith('[[')) {
-				str_ = '[' + str_
-			}
-			console.log(str_)
-			var sOut_ = JSON.parse(str_)
-			for(var i = 0; i<sOut_.length; i++) {
-				for(var j = 0; j<sOut_[i].length; j++) {
-					sOut_[i][j] = BigInt(sOut_[i][j])
+		if(thing=='Y'||thing=='wY'||thing=='PrSS'||thing=='BMS') {
+			var sOut_
+			if(thing=='Y'||thing=='wY'||thing=='PrSS') {
+				if(str_.length==0) {
+					return []
 				}
-				while(sOut_[i][sOut_[i].length-1]==0) {
-					sOut_[i].pop()
+				if(str_=='0') {
+					return []
+				}
+				str_ = '['+str_.replaceAll(/[^0123456789,]/g,'')+']'
+				sOut_ = JSON.parse(str_)
+				if(sOut_.includes('0')&&thing!='PrSS') {
+					return 'lim'
+				}
+				for(var i = 0; i<sOut_.length; i++) {
+					sOut_[i] = BigInt(sOut_[i])
+				}
+			}else if(thing=='BMS') {
+				str_ = str_.replaceAll(/[^0123456789,\(\)\[\]]/g,'')
+				str_ = '['+str_.replaceAll('(','[').replaceAll(')',']').replaceAll('][','],[')
+				if(!str_.startsWith('[')) {
+					str_ = '['+str_
+				}
+				if(!str_.endsWith(']')) {
+					str_ += ']'
+				}
+				if(!str_.endsWith(']]')) {
+					str_ += ']'
+				}
+				if(!str_.startsWith('[[')) {
+					str_ = '[' + str_
+				}
+				console.log(str_)
+				sOut_ = JSON.parse(str_)
+				for(var i = 0; i<sOut_.length; i++) {
+					for(var j = 0; j<sOut_[i].length; j++) {
+						sOut_[i][j] = BigInt(sOut_[i][j])
+					}
+					while(sOut_[i][sOut_[i].length-1]==0) {
+						sOut_[i].pop()
+					}
+				}
+				if(sOut_.length>1&&!sOut_[1].every(x=>(x==1))) {
+					return 'lim'
 				}
 			}
-			if(sOut_[0].length!=0) {
+			if(sOut_[0]!=(thing!='PrSS'&&thing!='BMS')) {
 				return 'lim'
 			}
-			return sOut_
+			var max_std_above = 'lim'
+			for(var i = 0;; i++) {//this loop should always terminate assuming the well-foundedness of the system
+				for(var j = 0;; j++) {
+					var expanded = expand(max_std_above,j)
+					if(compare(expanded,sOut_)) {
+						max_std_above = expanded
+						break
+					}
+					if(expanded.length>sOut_.length) {
+						console.log(max_std_above,expanded)
+						return 'lim'
+					}
+				}
+				if(compare(sOut_,max_std_above)) {
+					console.log(i)
+					return sOut_
+				}
+			}
 		}else {
 			str_ = str_.toUpperCase().replaceAll(/[^0WC_]/g,'')
 			if(str_.length==0) {
@@ -87,6 +106,9 @@ function toNot(str_) {
 				return 'lim'
 			}
 			str_ = rA_0(s2____,N____)
+			if(compare(str_,expand('lim',N____))) {
+				return 'lim'
+			}
 			return str_
 		}
 	}catch {return 'lim'}
@@ -100,7 +122,7 @@ function stickDiagram(a,b,x1,x2,h,doLabels) {
 	if(Math.abs(diff)<1/2||b==undefined||b.length==0) {
 		return 0
 	}
-	var arrN = F(a,b,Math.log2(diff)+1)
+	var arrN = getFundamentalSequence(a,b,Math.log2(diff)+1)
 	for(var i = 0; i<=arrN.length; i++) {
 		if(i==0) {
 			stickDiagram(a,arrN[0],x1,(x1+x2)/2,h,false)
@@ -109,7 +131,7 @@ function stickDiagram(a,b,x1,x2,h,doLabels) {
 		}
 	}
 }
-function F(a,b,l) {
+function getFundamentalSequence(a,b,l) {
 	if(a.toString()==b.toString()) {
 		return []
 	}
@@ -293,7 +315,7 @@ function ex_() {
 		break
 	}
 }
-function compare(n1,n2) {
+function compare(n1,n2) {//>=
 	if(n1.length==0) {
 		return n2.length==0
 	}

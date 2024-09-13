@@ -760,19 +760,8 @@ function expand(s,n,stringify){
   if (debugout) dg("debugout").textContent=debugout;
   return rr;
 }
-function expandmulti(s,nstring){
-  var result=calcMountain(s,maxDimensions);
-  if (result.dim>maxDimensions){
-    var lastPosition=getLastPosition(result);
-    for (var x=0;x<=lastPosition;x++){
-      if (findHighestWithPosition(result,x).value!=1) return "Aborted: Maximum dimensions reached.";
-    }
-  }
-  for (var i of nstring.split(",")) result=expand(result,+i);
-  return result;
-}
 	if(z[z.length-1]==1) {
-		return z.slice(z,z.length-1)
+		return z.slice(0,z.length-1)
 	}
 	if(z=='lim') {
 		return [1n,BigInt(k_)+2n]

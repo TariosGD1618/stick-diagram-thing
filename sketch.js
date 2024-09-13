@@ -1,4 +1,4 @@
-//stick diagramming by TariosGD1618, algorithm for Y and w-Y sequence expansion by Naruyoko, algorithm for TON expansion by solarzone, algorithm for BMS expansion by koteitan
+//stick diagramming by TariosGD1618, algorithm for Y, 0-Y and w-Y sequence expansion by Naruyoko (and BMS-0-Y conversion), algorithm for TON expansion by solarzone, algorithm for BMS expansion by koteitan
 BigInt.prototype.toJSON = function () {
 	return this.toString()+'n'
 }
@@ -28,9 +28,9 @@ function toNot(str_) {
 		return 'lim'
 	}
 	try {
-		if(thing=='Y'||thing=='wY'||thing=='PrSS'||thing=='BMS') {
+		if(thing=='0Y'||thing=='Y'||thing=='wY'||thing=='PrSS'||thing=='BMS') {
 			var sOut_
-			if(thing=='Y'||thing=='wY'||thing=='PrSS') {
+			if(thing!='BMS') {
 				if(str_.length==0) {
 					return []
 				}
@@ -45,7 +45,7 @@ function toNot(str_) {
 				for(var i = 0; i<sOut_.length; i++) {
 					sOut_[i] = BigInt(sOut_[i])
 				}
-			}else if(thing=='BMS') {
+			}else {
 				str_ = str_.replaceAll(/[^0123456789,\(\)\[\]]/g,'')
 				str_ = '['+str_.replaceAll('(','[').replaceAll(')',']').replaceAll('][','],[')
 				if(!str_.startsWith('[')) {
@@ -60,7 +60,6 @@ function toNot(str_) {
 				if(!str_.startsWith('[[')) {
 					str_ = '[' + str_
 				}
-				console.log(str_)
 				sOut_ = JSON.parse(str_)
 				for(var i = 0; i<sOut_.length; i++) {
 					for(var j = 0; j<sOut_[i].length; j++) {
@@ -86,12 +85,10 @@ function toNot(str_) {
 						break
 					}
 					if(expanded.length>sOut_.length) {
-						console.log(max_std_above,expanded)
 						return 'lim'
 					}
 				}
 				if(compare(sOut_,max_std_above)) {
-					console.log(i)
 					return sOut_
 				}
 			}
@@ -116,8 +113,8 @@ function toNot(str_) {
 function stickDiagram(a,b,x1,x2,h,doLabels) {
 	var diff = x2-x1
 	ctx.fillRect(Math.floor(x1),canvas.height/2-h/2,1,h)
-	if(doLabels&&ctx.measureText(f(a)).width<diff) {
-		ctx.fillText(f(a),x1,canvas.height/2-h/2)
+	if(doLabels&&ctx.measureText(f(a,lab.value)).width<diff) {
+		ctx.fillText(f(a,lab.value),x1,canvas.height/2-h/2)
 	}
 	if(Math.abs(diff)<1/2||b==undefined||b.length==0) {
 		return 0
@@ -159,12 +156,15 @@ function getFundamentalSequence(a,b,l) {
 function expand(arr,n) {
 	return ex_(arr,n,true)
 }
-function f(x) {
+function f(x,lv) {
+	if(!lv) {
+		lv = 'a'
+	}
 	if(x=='lim') {
 		return x
 	}
-	if(thing=='Y'||thing=='wY'||thing=='PrSS') {
-		if(x[1]>2||lab.value=='a') {
+	if(thing=='0Y'||thing=='Y'||thing=='wY'||thing=='PrSS') {
+		if(x[1]>2||lv=='a') {
 			return x+''
 		}
 	}else if(thing=='BMS') {
@@ -251,12 +251,18 @@ function conv(not,n1,n2) {
 			return 'W'
 		}
 		if(n1=='PrSS'&&n2=='BMS') {
-			return [[][1,1]]
+			return [[],[1n,1n]]
+		}
+		if(n1=='PrSS'&&n2=='0Y') {
+			return [1n,3n]
+		}
+		if(n1=='TONM'&&n2=='0Y') {
+			return [1n,4n,9n,10n]
 		}
 		if(n1=='TONM'&&n2=='BMS') {
-			return [[][1n,1n,1n][2n,2n,1n][3n]]
+			return [[],[1n,1n,1n],[2n,2n,1n],[3n]]
 		}
-		if(n1=='BMS'&&(n2=='Y'||n2=='wY')) {
+		if((n1=='BMS'||n1=='0Y')&&(n2=='Y'||n2=='wY')) {
 			return [1n,3n]
 		}
 		if(n1=='TONM'&&(n2=='Y'||n2=='wY')) {
@@ -268,6 +274,9 @@ function conv(not,n1,n2) {
 		if(n1=='Y'&&n2=='wY') {
 			return [1n,4n]
 		}
+		return 'lim'
+	}
+	if(compare(not,conv('lim',n2,n1))) {
 		return 'lim'
 	}
 	if(n1=='BMS'&&n2=='PrSS') {
@@ -293,6 +302,26 @@ function conv(not,n1,n2) {
 			}
 		}
 		return N2
+	}if(n1=='PrSS'&&(n2=='0Y'||n2=='Y'||n2=='wY')) {
+		return conv(conv(not,'PrSS','BMS'),'BMS','0Y')
+	}if(n1=='BMS'&&n2=='0Y') {
+		return BMSt0Y(not)
+	}if((n1=='0Y'||n1=='Y'||n1=='wY')&&n2=='PrSS') {
+		return conv(conv(not,'0Y','BMS'),'BMS','PrSS')
+	}if(n1=='0Y'&&n2=='BMS') {
+		var max_std_above = 'lim'
+		for(var i = 0;; i++) {
+			for(var j = 0;; j++) {
+				var expanded = BMS(max_std_above,j)
+				if(compare(conv(expanded,n2,n1),not,n1)) {
+					max_std_above = expanded
+					break
+				}
+			}
+			if(compare(not,conv(max_std_above,n2,n1),n1)) {
+				return max_std_above
+			}
+		}
 	}
 	return 'lim'
 }
@@ -303,6 +332,9 @@ function ex_() {
 		break
 		case 'wY':
 		return wY.apply(null,arguments)
+		break
+		case '0Y':
+		return _0Y.apply(null,arguments)
 		break
 		case 'BMS':
 		return BMS.apply(null,arguments)
@@ -315,22 +347,25 @@ function ex_() {
 		break
 	}
 }
-function compare(n1,n2) {//>=
-	if(n1.length==0) {
-		return n2.length==0
-	}
-	if(n2.length==0) {
-		true
-	}
+function compare(n1,n2,ntype) {//>=
 	if(n1=='lim') {
 		return true
 	}
 	if(n2=='lim') {
 		return false
 	}
-	if(thing=='Y'||thing=='wY'||thing=='PrSS') {
+	if(!ntype) {
+		ntype = thing
+	}
+	if(n1.length==0) {
+		return n2.length==0
+	}
+	if(n2.length==0) {
+		true
+	}
+	if(ntype=='0Y'||ntype=='Y'||ntype=='wY'||ntype=='PrSS') {
 		return lex(n1,n2,((a,b)=>(a-b)))>=0
-	}else if(thing=='BMS') {
+	}else if(ntype=='BMS') {
 		for(var i = 0; i<n1.length; i++) {
 			if(n1[i][n1[i].length-1]==0) n1[i].pop()
 		}
@@ -371,5 +406,4 @@ function arrCopy(arr) {
 		arr2.push(j)
 	}
 	return arr2
-}//BMS([[],[1n,1n,1n],[2n,2n,1n],[2n],[1n,1n,1n],[2n,2n,1n]])
-//(0,0,0)(1,1,1)(2,2,1)
+}

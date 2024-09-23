@@ -113,8 +113,8 @@ function toNot(str_) {
 function stickDiagram(a,b,x1,x2,h,doLabels) {
 	var diff = x2-x1
 	ctx.fillRect(Math.floor(x1),canvas.height/2-h/2,1,h)
-	if(doLabels&&ctx.measureText(f(a,lab.value)).width<diff) {
-		ctx.fillText(f(a,lab.value),x1,canvas.height/2-h/2)
+	if(doLabels&&ctx.measureText(stringify(a,lab.value)).width<diff) {
+		ctx.fillText(stringify(a,lab.value),x1,canvas.height/2-h/2)
 	}
 	if(Math.abs(diff)<1/2||b==undefined||b.length==0) {
 		return 0
@@ -135,9 +135,7 @@ function getFundamentalSequence(a,b,l) {
 	var arr_ = [a]
 	var n = 0
 	for(var i = 0; arr_.length<=l;i++) {
-		//console.log(JSON.stringify(a),JSON.stringify(b),i)
 		var bobby = expand(b,i)
-		//console.log(JSON.stringify(a),JSON.stringify(bobby),compare(a,bobby))
 		if(n>15) {
 			break
 		}
@@ -156,17 +154,18 @@ function getFundamentalSequence(a,b,l) {
 function expand(arr,n) {
 	return ex_(arr,n,true)
 }
-function f(x,lv) {
+function stringify(x,lv) {
 	if(!lv) {
-		lv = 'a'
+		lv = 'y'
 	}
 	if(x=='lim') {
 		return x
 	}
+	if((thing=='Y'||thing=='wY')&&lv=='c') {
+		return Y__(x)
+	}
 	if(thing=='0Y'||thing=='Y'||thing=='wY'||thing=='PrSS') {
-		if(x[1]>2||lv=='a') {
-			return x+''
-		}
+		return x+''
 	}else if(thing=='BMS') {
 		var str = ''
 		for(var i of x) {
@@ -195,23 +194,23 @@ function stik_(a) {
 		MaxOrd = conv(MaxOrd,thing,sel.value)
 		thing=sel.value
 		if(inp1.value.length!=0) {
-			inp1.value = f(MinOrd)
+			inp1.value = stringify(MinOrd)
 			if(MinOrd=='lim') {
 				inp1.value = ''
 				MinOrd = toNot(inp1.value)
 			}
 		}
-		inp2.value = f(MaxOrd)
+		inp2.value = stringify(MaxOrd)
 		if(inp1.value.length==0) {
 			MinOrd = toNot(inp1.value)
 		}
 	}else {
 		MinOrd = toNot(inp1.value)
 		if(inp1.value.length!=0) {
-			inp1.value = f(MinOrd)
+			inp1.value = stringify(MinOrd)
 		}
 		MaxOrd = toNot(inp2.value)
-		inp2.value = f(MaxOrd)
+		inp2.value = stringify(MaxOrd)
 	}
 	if(lab.value=='n') {
 		doLabels_ = false
@@ -225,12 +224,12 @@ function stik_(a) {
 		inp1.value = ''
 		MinOrd = toNot(inp1.value)
 	}
-	try {
+	//try {
 		stickDiagram(MinOrd,MaxOrd,0,canvas.width,canvas.height,doLabels_)
-	}catch {
-		inp2.value = 'lim'
-		stik_(a)
-	}
+	//}catch {
+	//	inp2.value = 'lim'
+	//	stik_(a)
+	//}
 }
 function stik_2(a) {
 	canvas.width=Number(inp3.value)
@@ -406,4 +405,78 @@ function arrCopy(arr) {
 		arr2.push(j)
 	}
 	return arr2
+}
+function Y__(arr) {
+	function r(s) {
+		var s2 = s.replace(/\([^\(\)]/,'(')
+		s2 = s2.replace(/\(\)/,'')
+		if(s2.length!=s.length) {
+			return r(s2)
+		}
+		return s
+	}
+	function tfm(s) {
+		if(r(s).includes('+')) {
+			return '('+s+')'
+		}
+		return s
+	}
+	function tfe(s) {
+		if(r(s).includes('+')||r(s).includes('×')) {
+			return '('+s+')'
+		}
+		return s
+	}
+	if(arr.every(x => x==1)) {
+		return ''+arr.length
+	}
+	if(compare(arr,[1n,2n,4n],'Y')) {
+		return thing+'('+arr+')'
+	}
+	var arr__=  [[]]
+	for(var i = 0; i<arr.length; i++) {
+		if(i>0&&arr[i]==1) {
+			arr__.push([])
+		}
+		arr__[arr__.length-1].push(arr[i])
+	}
+	if(arr__.length>1) {
+		var arr__2 = []
+		for(var i = 0; i<arr__.length; i++) {
+			if(i!=0&&(arr__[i]+''==arr__2[arr__2.length-1][0]+'')) {
+				arr__2[arr__2.length-1][1]++
+			}else {
+				arr__2.push([arr__[i],1])
+			}
+		}
+		var strOut = ''
+		for(var i = 0; i<arr__2.length; i++) {
+			if(arr__2[i][0]+''=='1') {
+				strOut+=arr__2[i][1]
+			}else {
+				if(arr__2[i][1]==1) {
+					strOut+=Y__(arr__2[i][0])
+				}else {
+					strOut+=tfm(Y__(arr__2[i][0]))+'×'+arr__2[i][1]
+				}
+			}
+			if(i<arr__2.length-1) {
+				strOut+='+'
+			}
+		}
+		return strOut
+	}
+	if(arr[0]==1&&arr[1]==2&&arr.length==2) {
+		return 'ω'
+	}
+	if(!compare(arr,[1n,2n,4n],'Y')) {
+		var arr2 = arrCopy(arr)
+		arr2.shift()
+		for(var i = 0; i<arr2.length; i++) {
+			arr2[i]--
+		}
+		var outStr = Y__(arr2)
+		return 'ω^'+tfe(outStr)
+	}
+	return 'Y('+arr+')'
 }
